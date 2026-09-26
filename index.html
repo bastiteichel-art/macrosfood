@@ -59,10 +59,38 @@
             letter-spacing: 1px;
         }
 
+        /* Estilos de la navegación por pestañas */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            padding: 0 10px;
+        }
+
+        .tab-btn {
+            background: #1e1e1e;
+            color: var(--text-gray);
+            border: 1px solid var(--border-color);
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background-color: var(--accent-green);
+            color: #000;
+            border-color: var(--accent-green);
+        }
+
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 0 20px 20px 20px;
         }
 
         .section-title {
@@ -237,8 +265,15 @@
         <div class="tagline">Comida Real. Resultados Reales.</div>
     </header>
 
+    <!-- Pestañas de navegación -->
+    <div class="tabs">
+        <button class="tab-btn active" onclick="cambiarCategoria('platos', this)">Platos</button>
+        <button class="tab-btn" onclick="cambiarCategoria('batidos', this)">Batidos de Proteína</button>
+        <button class="tab-btn" onclick="cambiarCategoria('postres', this)">Postres</button>
+    </div>
+
     <div class="container">
-        <div class="section-title">Nuestros Platos</div>
+        <div class="section-title" id="section-title">Nuestros Platos</div>
         <div class="grid" id="menu-container"></div>
     </div>
 
@@ -254,8 +289,10 @@
 
     <script>
         const productos = [
+            // Platos
             {
                 id: 1,
+                categoria: "platos",
                 tag: "01 THE POWER",
                 name: "The Power",
                 desc: "Pollo a la plancha con papas rústicas y ensalada fresca.",
@@ -263,10 +300,11 @@
                 prot: "60G",
                 carb: "50G",
                 precio: 6500,
-                img: "watermarked_img_2613181562270569147.jpg"
+                img: "1.jpg"
             },
             {
                 id: 2,
+                categoria: "platos",
                 tag: "02 THE BALANCE",
                 name: "The Balance",
                 desc: "Carne magra con papas rústicas y vegetales al vapor.",
@@ -274,10 +312,11 @@
                 prot: "45G",
                 carb: "35G",
                 precio: 7000,
-                img: "watermarked_img_16740063895439544593.jpg"
+                img: "2.jpg"
             },
             {
                 id: 3,
+                categoria: "platos",
                 tag: "03 THE FUEL",
                 name: "The Fuel",
                 desc: "Pavo al horno con arroz integral y ensalada mixta.",
@@ -285,15 +324,82 @@
                 prot: "50G",
                 carb: "45G",
                 precio: 6800,
-                img: "watermarked_img_14651068744978297752.jpg"
+                img: "3.jpg"
+            },
+            // Batidos
+            {
+                id: 4,
+                categoria: "batidos",
+                tag: "04 STRAWBERRY WHEY",
+                name: "Batido de Frutilla",
+                desc: "Proteína de suero de leche sabor frutilla con fruta natural y leche descremada.",
+                kcal: "320",
+                prot: "32G",
+                carb: "25G",
+                precio: 4200,
+                img: "1.jpg"
+            },
+            {
+                id: 5,
+                categoria: "batidos",
+                tag: "05 CHOCO BOOST",
+                name: "Batido de Chocolate",
+                desc: "Proteína sabor chocolate con cacao amargo, mantequilla de maní y plátano.",
+                kcal: "380",
+                prot: "35G",
+                carb: "30G",
+                precio: 4500,
+                img: "1.jpg"
+            },
+            {
+                id: 6,
+                categoria: "batidos",
+                tag: "06 VANILLA FIT",
+                name: "Batido de Vainilla",
+                desc: "Proteína isolate sabor vainilla con plátano, avena y toque de canela.",
+                kcal: "340",
+                prot: "32G",
+                carb: "32G",
+                precio: 4200,
+                img: "1.jpg"
+            },
+            // Postres
+            {
+                id: 7,
+                categoria: "postres",
+                tag: "07 BROWNIE MOUSE",
+                name: "Copa Brownie Proteico",
+                desc: "Mousse de chocolate alto en proteína sobre capas de brownie fit sin azúcar.",
+                kcal: "260",
+                prot: "20G",
+                carb: "18G",
+                precio: 3800,
+                img: "2.jpg"
             }
         ];
 
+        let categoriaActual = "platos";
         let carrito = {};
+
+        function cambiarCategoria(categoria, btnElement) {
+            categoriaActual = categoria;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const titulo = document.getElementById('section-title');
+            if (categoria === 'platos') titulo.innerText = 'Nuestros Platos';
+            else if (categoria === 'batidos') titulo.innerText = 'Batidos de Proteína';
+            else if (categoria === 'postres') titulo.innerText = 'Postres Fit';
+
+            renderMenu();
+        }
 
         function renderMenu() {
             const container = document.getElementById('menu-container');
-            container.innerHTML = productos.map(prod => `
+            const productosFiltrados = productos.filter(p => p.categoria === categoriaActual);
+
+            container.innerHTML = productosFiltrados.map(prod => `
                 <div class="card">
                     <div class="card-img-container">
                         <span class="badge">${prod.tag}</span>
@@ -327,8 +433,10 @@
 
             for (let id in carrito) {
                 const prod = productos.find(p => p.id == id);
-                totalItems += carrito[id];
-                totalPrecio += prod.precio * carrito[id];
+                if (prod) {
+                    totalItems += carrito[id];
+                    totalPrecio += prod.precio * carrito[id];
+                }
             }
 
             document.getElementById('cart-count').innerText = totalItems;
@@ -345,9 +453,11 @@
 
             for (let id in carrito) {
                 const prod = productos.find(p => p.id == id);
-                const subtotal = prod.precio * carrito[id];
-                mensaje += `• *${carrito[id]}x ${prod.name}* ($${subtotal.toLocaleString()})\n`;
-                total += subtotal;
+                if (prod) {
+                    const subtotal = prod.precio * carrito[id];
+                    mensaje += `• *${carrito[id]}x ${prod.name}* ($${subtotal.toLocaleString()})\n`;
+                    total += subtotal;
+                }
             }
 
             mensaje += `\n*Total a pagar: $${total.toLocaleString()}*`;
